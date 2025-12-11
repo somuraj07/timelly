@@ -65,7 +65,7 @@ export default function LoginPage() {
         transition={{ duration: 0.5 }}
         className="bg-white shadow-xl p-10 rounded-2xl w-96 relative overflow-hidden"
       >
-        <h2 className="text-3xl font-bold mb-6 text-center text-green-700">
+        <h2 className="text-3xl font-bold mb-6 text-center text-black">
           Login
         </h2>
 
@@ -78,7 +78,7 @@ export default function LoginPage() {
           <input
             type="email"
             placeholder="Email"
-            className="w-full border border-green-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+            className="w-full border border-green-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 transition text-black placeholder-black"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -90,7 +90,7 @@ export default function LoginPage() {
           <input
             type={showPassword ? "text" : "password"}
             placeholder="Password"
-            className="w-full border border-green-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 transition pr-12"
+            className="w-full border border-green-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 transition pr-12 text-black placeholder-black"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -98,7 +98,7 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-3 text-green-500 font-semibold"
+            className="absolute right-3 top-3 text-black font-semibold"
           >
             {showPassword ? "Hide" : "Show"}
           </button>

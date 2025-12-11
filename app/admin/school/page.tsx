@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getSession } from "next-auth/react";
 
 type Role = "TEACHER" | "STUDENT";
 
@@ -14,6 +15,18 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loggedInName, setLoggedInName] = useState<string | null>(null);
+
+  // Fetch session on mount
+  useEffect(() => {
+    const fetchSession = async () => {
+      const session = await getSession();
+      if (session?.user?.name) {
+        setLoggedInName(session.user.name);
+      }
+    };
+    fetchSession();
+  }, []);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,17 +51,24 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-green-50">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-green-50">
+      {/* Display logged-in SuperAdmin name */}
+      {loggedInName && (
+        <p className="mb-4 text-black font-semibold text-lg">
+          Logged in as: {loggedInName}
+        </p>
+      )}
+
       <form
         onSubmit={handleSignup}
         className="bg-white shadow-xl p-10 rounded-2xl w-96 relative overflow-hidden"
       >
-        <h2 className="text-3xl font-bold mb-6 text-center text-green-700">
+        <h2 className="text-3xl font-bold mb-6 text-center text-black">
           Sign Up
         </h2>
 
         {error && (
-          <p className="text-red-600 mb-4 text-center animate-pulse">{error}</p>
+          <p className="text-black mb-4 text-center animate-pulse">{error}</p>
         )}
 
         {/* Name Input */}
@@ -56,7 +76,7 @@ export default function SignupPage() {
           <input
             type="text"
             placeholder="Full Name"
-            className="w-full border border-green-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+            className="w-full border border-green-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 transition text-black placeholder-black"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -68,7 +88,7 @@ export default function SignupPage() {
           <input
             type="email"
             placeholder="Email"
-            className="w-full border border-green-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+            className="w-full border border-green-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 transition text-black placeholder-black"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -80,7 +100,7 @@ export default function SignupPage() {
           <input
             type={showPassword ? "text" : "password"}
             placeholder="Password"
-            className="w-full border border-green-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 transition pr-12"
+            className="w-full border border-green-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 transition pr-12 text-black placeholder-black"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -88,7 +108,7 @@ export default function SignupPage() {
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-3 text-green-500 font-semibold"
+            className="absolute right-3 top-3 text-black font-semibold"
           >
             {showPassword ? "Hide" : "Show"}
           </button>
@@ -99,7 +119,7 @@ export default function SignupPage() {
           <select
             value={role}
             onChange={(e) => setRole(e.target.value as Role)}
-            className="w-full border border-green-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+            className="w-full border border-green-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 transition text-black placeholder-black"
           >
             <option value="TEACHER">TEACHER</option>
             <option value="STUDENT">STUDENT</option>
