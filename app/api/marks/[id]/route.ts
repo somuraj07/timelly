@@ -17,7 +17,7 @@ function calculateGrade(marks: number, totalMarks: number): string {
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -26,7 +26,8 @@ export async function PUT(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const markId = params.id;
+    const { id } = await params;
+    const markId = id;
     const { subject, marks, totalMarks, suggestions } = await req.json();
 
     const existingMark = await prisma.mark.findUnique({
@@ -109,7 +110,7 @@ export async function PUT(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -118,7 +119,8 @@ export async function DELETE(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const markId = params.id;
+    const { id } = await params;
+    const markId = id;
 
     const existingMark = await prisma.mark.findUnique({
       where: { id: markId },

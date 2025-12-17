@@ -5,7 +5,7 @@ import prisma from "@/lib/db";
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -14,6 +14,7 @@ export async function PUT(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const { title, description, mediaUrl, mediaType } = await req.json();
 
     const schoolId = session.user.schoolId;
@@ -28,7 +29,7 @@ export async function PUT(
     // Verify news feed belongs to school
     const existingNewsFeed = await prisma.newsFeed.findFirst({
       where: {
-        id: params.id,
+        id: id,
         schoolId: schoolId,
       },
     });
@@ -41,7 +42,7 @@ export async function PUT(
     }
 
     const updatedNewsFeed = await prisma.newsFeed.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         ...(title && { title }),
         ...(description && { description }),
@@ -70,7 +71,7 @@ export async function PUT(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -79,6 +80,7 @@ export async function DELETE(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const schoolId = session.user.schoolId;
 
     if (!schoolId) {
@@ -91,7 +93,7 @@ export async function DELETE(
     // Verify news feed belongs to school
     const existingNewsFeed = await prisma.newsFeed.findFirst({
       where: {
-        id: params.id,
+        id: id,
         schoolId: schoolId,
       },
     });
@@ -104,7 +106,7 @@ export async function DELETE(
     }
 
     await prisma.newsFeed.delete({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     return NextResponse.json(

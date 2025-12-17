@@ -5,7 +5,7 @@ import prisma from "@/lib/db";
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -14,6 +14,7 @@ export async function POST(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const { tcDocumentUrl } = await req.json();
 
     const schoolId = session.user.schoolId;
@@ -28,7 +29,7 @@ export async function POST(
     // Verify TC belongs to school
     const tc = await prisma.transferCertificate.findFirst({
       where: {
-        id: params.id,
+        id: id,
         schoolId: schoolId,
       },
       include: {
@@ -54,7 +55,7 @@ export async function POST(
     const result = await prisma.$transaction(async (tx) => {
       // Update TC status
       const updatedTC = await tx.transferCertificate.update({
-        where: { id: params.id },
+        where: { id: id },
         data: {
           status: "APPROVED",
           approvedById: session.user.id,
