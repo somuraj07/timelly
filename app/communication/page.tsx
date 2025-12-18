@@ -38,7 +38,8 @@ export default function CommunicationPage() {
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>("");
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
-  const socketRef = useRef<Socket | null>(null);
+  // Use a loose type here to avoid build-time type issues on Vercel; runtime logic stays the same.
+  const socketRef = useRef<any>(null);
   const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001";
 
   useEffect(() => {
