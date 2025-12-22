@@ -20,6 +20,18 @@ enum Role {
   TEACHER
   STUDENT
 }
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum LeaveType {
+  CASUAL
+  SICK
+  PAID
+  UNPAID
+}
 
 model User {
   id       String  @id @default(cuid())
@@ -35,6 +47,7 @@ model User {
 
   // Teacher-specific fields
   mobile          String? // teacher mobile
+  leaveAprrover  Boolean @default(false)
   assignedClasses Class[] @relation("TeacherClass")
   attendances     Attendance[] @relation("TeacherAttendance")
   marks           Mark[] @relation("TeacherMarks")
@@ -58,6 +71,9 @@ model User {
   // Transfer Certificate
   tcRequests TransferCertificate[] @relation("TCRequester")
   tcApprovals TransferCertificate[] @relation("TCApprover")
+  // Leave Requests
+  leavesApplied  LeaveRequest[] @relation("TeacherLeaves")
+  leavesApproved LeaveRequest[] @relation("ApprovedLeaves")
 
   // NextAuth
   accounts Account[]
@@ -69,7 +85,41 @@ model User {
   adminSchools School[] @relation("SchoolAdmin")
 
   teacherSchools School[] @relation("SchoolTeacher")
+
 }
+model LeaveRequest {
+  id String @id @default(cuid())
+
+  // Teacher who applied for leave
+  teacherId String
+  teacher   User   @relation("TeacherLeaves", fields: [teacherId], references: [id], onDelete: Cascade)
+
+  // Admin / approver
+  approverId String?
+  approver   User?  @relation("ApprovedLeaves", fields: [approverId], references: [id], onDelete: SetNull)
+
+  // School (multi-tenant safe)
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  leaveType LeaveType
+  reason    String   @db.Text
+
+  fromDate DateTime
+  toDate   DateTime
+
+  status  LeaveStatus @default(PENDING)
+  remarks String?     @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([teacherId])
+  @@index([schoolId])
+  @@index([status])
+  @@index([fromDate, toDate])
+}
+
 
 model School {
   id       String @id @default(cuid())
@@ -89,6 +139,7 @@ model School {
   transferCertificates TransferCertificate[]
   studentHistories StudentHistory[]
   appointments Appointment[]
+  leaveRequests LeaveRequest[]
 
   createdAt DateTime @default(now())
 
