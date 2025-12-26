@@ -1,6 +1,10 @@
 "use client";
 
+import BulkStudentUpload from "@/app/bulkstudent/page";
+import { div } from "framer-motion/client";
 import { useState } from "react";
+import { motion } from "framer-motion";
+import { UploadCloud, FileSpreadsheet } from "lucide-react";
 
 export default function AddStudentPage() {
   const [loading, setLoading] = useState(false);
@@ -89,7 +93,8 @@ export default function AddStudentPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-green-50 p-4">
+    <div>
+<div className="min-h-screen flex items-center justify-center bg-green-50 p-4">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-lg border border-green-200">
         <div className="p-6 space-y-6">
           <h1 className="text-2xl font-semibold text-green-700 text-center">
@@ -241,5 +246,64 @@ export default function AddStudentPage() {
         </div>
       </div>
     </div>
+    <div>
+      <motion.div
+  initial={{ opacity: 0, y: 40 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.6, ease: "easeOut" }}
+  viewport={{ once: true }}
+  className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 p-6"
+>
+  <motion.div
+    whileHover={{ scale: 1.02 }}
+    transition={{ type: "spring", stiffness: 200 }}
+    className="w-full max-w-3xl bg-white/80 backdrop-blur-xl border border-green-200 rounded-3xl shadow-[0_20px_60px_rgba(22,163,74,0.25)] p-8"
+  >
+    {/* Header */}
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 }}
+      className="flex items-center gap-4 mb-6"
+    >
+      <div className="p-4 rounded-2xl bg-green-100 text-green-700 shadow">
+        <UploadCloud size={32} />
+      </div>
+      <div>
+        <h2 className="text-2xl font-bold text-green-700">
+          Bulk Student Upload
+        </h2>
+        <p className="text-sm text-gray-600">
+          Upload students using Excel sheet
+        </p>
+      </div>
+    </motion.div>
+
+    {/* Info Strip */}
+    <motion.div
+      whileHover={{ scale: 1.01 }}
+      className="flex items-center gap-3 mb-6 bg-green-50 border border-green-200 rounded-xl p-4"
+    >
+      <FileSpreadsheet className="text-green-600" />
+      <p className="text-sm text-gray-700">
+        Accepted format: <b>.xlsx</b> · Follow the sample template
+      </p>
+    </motion.div>
+
+    {/* Excel Upload Component (UNCHANGED LOGIC) */}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.3 }}
+      className="rounded-2xl border-2 border-dashed border-green-300 p-6 hover:border-green-500 transition"
+    >
+      <BulkStudentUpload />
+    </motion.div>
+  </motion.div>
+</motion.div>
+
+    </div>
+    </div>
+    
   );
 }
