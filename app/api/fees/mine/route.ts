@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import prisma from "@/lib/db";
+import { redis } from "@/lib/redis";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -18,9 +19,17 @@ export async function GET() {
   }
 
   try {
+    const cachedKey = `fees:${session.user.studentId}`;
+    const cachedFee = await redis.get(cachedKey);
+
+    if (cachedFee) {
+      console.log("✅ Fee details served from Redis");
+      return NextResponse.json({ fee: cachedFee }, { status: 200 });
+    }
     const fee = await prisma.studentFee.findUnique({
       where: { studentId: session.user.studentId },
     });
+    await redis.set(cachedKey,fee,{ex:60 * 5}); // Cache for 5 minutes
 
     if (!fee) {
       return NextResponse.json(

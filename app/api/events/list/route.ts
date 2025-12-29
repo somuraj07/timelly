@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import prisma from "@/lib/db";
+import { redis } from "@/lib/redis";
 
 export async function GET(req: Request) {
   try {
@@ -52,7 +53,12 @@ export async function GET(req: Request) {
         where.teacherId = teacherId;
       }
     }
-
+  const cachedKey = `events:${schoolId}:${session.user.studentId || "all"}:${classId || "all"}:${teacherId || "all"}`;
+    const cachedEvents = await redis.get(cachedKey);
+    if (cachedEvents) {
+      console.log("✅ Events served from Redis");
+      return NextResponse.json({ events: cachedEvents }, { status: 200 });
+    }
     const events = await prisma.event.findMany({
       where,
       include: {
@@ -70,7 +76,7 @@ export async function GET(req: Request) {
         createdAt: "desc",
       },
     });
-
+   await redis.set(cachedKey,events,{ex:60 * 5}); // Cache for 5 minutes
     // For students, also include registration status
     if (session.user.studentId) {
       const eventsWithRegistration = await Promise.all(

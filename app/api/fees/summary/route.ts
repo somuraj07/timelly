@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import prisma from "@/lib/db";
+import { redis } from "@/lib/redis";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -35,7 +36,12 @@ export async function GET() {
         { status: 400 }
       );
     }
-
+   const cachedKey = `feeSummary:${schoolId}`;
+    const cachedSummary = await redis.get(cachedKey);
+    if (cachedSummary) {
+      console.log("✅ Fee summary served from Redis");
+      return NextResponse.json({ summary: cachedSummary }, { status: 200 });
+    }
     const fees = await prisma.studentFee.findMany({
       where: { student: { schoolId } },
       include: {
@@ -49,6 +55,7 @@ export async function GET() {
       },
       orderBy: { updatedAt: "desc" },
     });
+    await redis.set(cachedKey,fees,{ex:60 * 5}); // Cache for 5 minutes
 
     const stats = fees.reduce(
       (acc, fee) => {
